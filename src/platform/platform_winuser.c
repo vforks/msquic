@@ -188,8 +188,21 @@ QuicAlloc(
     )
 {
     QUIC_DBG_ASSERT(QuicPlatform.Heap);
+    return HeapAlloc(QuicPlatform.Heap, HEAP_ZERO_MEMORY, ByteCount);
+}
+
+_Ret_maybenull_
+_Post_writable_byte_size_(ByteCount)
+DECLSPEC_ALLOCATOR
+void*
+QuicAllocUninitialized(
+    _In_ size_t ByteCount
+    )
+{
+    QUIC_DBG_ASSERT(QuicPlatform.Heap);
     return HeapAlloc(QuicPlatform.Heap, 0, ByteCount);
 }
+
 
 void
 QuicFree(

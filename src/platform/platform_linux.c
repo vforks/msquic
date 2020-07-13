@@ -107,6 +107,22 @@ QuicAlloc(
     )
 {
 #ifdef QUIC_PLATFORM_DISPATCH_TABLE
+    void* AllocMem = PlatDispatch->Alloc(ByteCount);
+    if (NULL != AllocMem) {
+        QuicZeroMemory(AllocMem, ByteCount);
+    }
+    return AllocMem;
+#else
+    return calloc(ByteCount, 1);
+#endif
+}
+
+void*
+QuicAllocUninitialized(
+    _In_ size_t ByteCount
+    )
+{
+#ifdef QUIC_PLATFORM_DISPATCH_TABLE
     return PlatDispatch->Alloc(ByteCount);
 #else
     return malloc(ByteCount);
@@ -640,7 +656,7 @@ QuicThreadCreate(
         return errno;
     }
 
-#ifdef __GLIBC__ 
+#ifdef __GLIBC__
     if (Config->Flags & QUIC_THREAD_FLAG_SET_IDEAL_PROC) {
         QUIC_TEL_ASSERT(Config->IdealProcessor < 64);
         // There is no way to set an ideal processor in Linux, so just set affinity

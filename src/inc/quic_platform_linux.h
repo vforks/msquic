@@ -259,7 +259,9 @@ QuicFree(
     );
 
 #define QUIC_ALLOC_PAGED(Size) QuicAlloc(Size)
+#define QUIC_ALLOC_PAGED_UNINITIALIZED(Size) QuicAllocUninitialized(Size)
 #define QUIC_ALLOC_NONPAGED(Size) QuicAlloc(Size)
+#define QUIC_ALLOC_NONPAGED_UNINITIALIZED(Size) QuicAllocUninitialized(Size)
 #define QUIC_FREE(Mem) QuicFree((void*)Mem)
 
 //

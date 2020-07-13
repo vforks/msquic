@@ -249,13 +249,23 @@ QuicAlloc(
     _In_ size_t ByteCount
     );
 
+_Ret_maybenull_
+_Post_writable_byte_size_(ByteCount)
+DECLSPEC_ALLOCATOR
+void*
+QuicAllocUninitialized(
+    _In_ size_t ByteCount
+    );
+
 void
 QuicFree(
     __drv_freesMem(Mem) _Frees_ptr_opt_ void* Mem
     );
 
 #define QUIC_ALLOC_PAGED(Size) QuicAlloc(Size)
+#define QUIC_ALLOC_PAGED_UNINITIALIZED(Size) QuicAllocUninitialized(Size)
 #define QUIC_ALLOC_NONPAGED(Size) QuicAlloc(Size)
+#define QUIC_ALLOC_NONPAGED_UNINITIALIZED(Size) QuicAllocUninitialized(Size)
 #define QUIC_FREE(Mem) QuicFree((void*)Mem)
 
 typedef struct QUIC_POOL {

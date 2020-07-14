@@ -132,6 +132,10 @@ QuicTraceRundown(
 #define QuicTraceEventEnabled(x) TRUE
 #define QuicTraceEvent_Skip(...)
 #else
+
+#define CLOG_BYTEARRAY_HELPER(length, pointer) pointer, length
+#define CLOG_BYTEARRAY(length, pointer) CLOG_BYTEARRAY_HELPER(length, pointer)
+
 #ifdef QUIC_EVENTS_STUB
 #define QuicTraceEventEnabled(Name) FALSE
 #define QuicTraceEvent(Name, Fmt, ...)

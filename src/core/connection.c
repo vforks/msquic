@@ -163,21 +163,19 @@ QuicConnAlloc(
 
         Path->LocalAddress = Datagram->Tuple->LocalAddress;
         Connection->State.LocalAddressSet = TRUE;
-        QuicTraceEvent_Skip(
+        QuicTraceEvent(
             ConnLocalAddrAdded,
             "[conn][%p] New Local IP: %!SOCKADDR!",
             Connection,
-            LOG_ADDR_LEN(Path->LocalAddress),
-            (const uint8_t*)&Path->LocalAddress);
+            CLOG_BYTEARRAY(LOG_ADDR_LEN(Path->LocalAddress), (const uint8_t*)&Path->LocalAddress));
 
         Path->RemoteAddress = Datagram->Tuple->RemoteAddress;
         Connection->State.RemoteAddressSet = TRUE;
-        QuicTraceEvent_Skip(
+        QuicTraceEvent(
             ConnRemoteAddrAdded,
             "[conn][%p] New Remote IP: %!SOCKADDR!",
             Connection,
-            LOG_ADDR_LEN(Path->RemoteAddress),
-            (const uint8_t*)&Path->RemoteAddress);
+            CLOG_BYTEARRAY(LOG_ADDR_LEN(Path->RemoteAddress), (const uint8_t*)&Path->RemoteAddress));
 
         Path->DestCid =
             QuicCidNewDestination(Packet->SourceCidLen, Packet->SourceCid);
@@ -186,13 +184,12 @@ QuicConnAlloc(
         }
         Path->DestCid->CID.UsedLocally = TRUE;
         QuicListInsertTail(&Connection->DestCids, &Path->DestCid->Link);
-        QuicTraceEvent_Skip(
+        QuicTraceEvent(
             ConnDestCidAdded,
             "[conn][%p] (SeqNum=%llu) New Destination CID: %!CID!",
             Connection,
             Path->DestCid->CID.SequenceNumber,
-            Path->DestCid->CID.Length,
-            Path->DestCid->CID.Data);
+            CLOG_BYTEARRAY(Path->DestCid->CID.Length, Path->DestCid->CID.Data));
 
         QUIC_CID_HASH_ENTRY* SourceCid =
             QuicCidNewSource(Connection, Packet->DestCidLen, Packet->DestCid);
@@ -202,13 +199,12 @@ QuicConnAlloc(
         SourceCid->CID.IsInitial = TRUE;
         SourceCid->CID.UsedByPeer = TRUE;
         QuicListPushEntry(&Connection->SourceCids, &SourceCid->Link);
-        QuicTraceEvent_Skip(
+        QuicTraceEvent(
             ConnSourceCidAdded,
             "[conn][%p] (SeqNum=%llu) New Source CID: %!CID!",
             Connection,
             SourceCid->CID.SequenceNumber,
-            SourceCid->CID.Length,
-            SourceCid->CID.Data);
+            CLOG_BYTEARRAY(SourceCid->CID.Length, SourceCid->CID.Data));
 
     } else {
         Connection->Type = QUIC_HANDLE_TYPE_CLIENT;
@@ -223,13 +219,12 @@ QuicConnAlloc(
         Path->DestCid->CID.UsedLocally = TRUE;
         Connection->DestCidCount++;
         QuicListInsertTail(&Connection->DestCids, &Path->DestCid->Link);
-        QuicTraceEvent_Skip(
+        QuicTraceEvent(
             ConnDestCidAdded,
             "[conn][%p] (SeqNum=%llu) New Destination CID: %!CID!",
             Connection,
             Path->DestCid->CID.SequenceNumber,
-            Path->DestCid->CID.Length,
-            Path->DestCid->CID.Data);
+            CLOG_BYTEARRAY(Path->DestCid->CID.Length, Path->DestCid->CID.Data));
     }
 
     QuicSessionRegisterConnection(Session, Connection);
@@ -608,20 +603,18 @@ QuicConnTraceRundownOper(
     if (Connection->State.Started) {
         for (uint8_t i = 0; i < Connection->PathsCount; ++i) {
             if (Connection->State.LocalAddressSet || i != 0) {
-                QuicTraceEvent_Skip(
+                QuicTraceEvent(
                     ConnLocalAddrAdded,
                      "[conn][%p] New Local IP: %!SOCKADDR!",
                     Connection,
-                    LOG_ADDR_LEN(Connection->Paths[i].LocalAddress),
-                    (const uint8_t*)&Connection->Paths[i].LocalAddress);
+                    CLOG_BYTEARRAY(LOG_ADDR_LEN(Connection->Paths[i].LocalAddress), (const uint8_t*)&Connection->Paths[i].LocalAddress));
             }
             if (Connection->State.RemoteAddressSet || i != 0) {
-                QuicTraceEvent_Skip(
+                QuicTraceEvent(
                     ConnRemoteAddrAdded,
                     "[conn][%p] New Remote IP: %!SOCKADDR!",
                     Connection,
-                    LOG_ADDR_LEN(Connection->Paths[i].RemoteAddress),
-                    (const uint8_t*)&Connection->Paths[i].RemoteAddress);
+                    CLOG_BYTEARRAY(LOG_ADDR_LEN(Connection->Paths[i].RemoteAddress), (const uint8_t*)&Connection->Paths[i].RemoteAddress));
             }
         }
         for (QUIC_SINGLE_LIST_ENTRY* Entry = Connection->SourceCids.Next;
@@ -633,13 +626,12 @@ QuicConnTraceRundownOper(
                     QUIC_CID_HASH_ENTRY,
                     Link);
             UNREFERENCED_PARAMETER(SourceCid);
-            QuicTraceEvent_Skip(
+            QuicTraceEvent(
                 ConnSourceCidAdded,
                 "[conn][%p] (SeqNum=%llu) New Source CID: %!CID!",
                 Connection,
                 SourceCid->CID.SequenceNumber,
-                SourceCid->CID.Length,
-                SourceCid->CID.Data);
+                CLOG_BYTEARRAY(SourceCid->CID.Length, SourceCid->CID.Data));
         }
         for (QUIC_LIST_ENTRY* Entry = Connection->DestCids.Flink;
                 Entry != &Connection->DestCids;
@@ -650,13 +642,12 @@ QuicConnTraceRundownOper(
                     QUIC_CID_QUIC_LIST_ENTRY,
                     Link);
             UNREFERENCED_PARAMETER(DestCid);
-            QuicTraceEvent_Skip(
+            QuicTraceEvent(
                 ConnDestCidAdded,
                 "[conn][%p] (SeqNum=%llu) New Destination CID: %!CID!",
                 Connection,
                 DestCid->CID.SequenceNumber,
-                DestCid->CID.Length,
-                DestCid->CID.Data);
+                CLOG_BYTEARRAY(DestCid->CID.Length, DestCid->CID.Data));
         }
     }
     if (Connection->State.Connected) {
@@ -875,13 +866,12 @@ QuicConnGenerateNewSourceCid(
         }
     } while (SourceCid == NULL);
 
-    QuicTraceEvent_Skip(
+    QuicTraceEvent(
         ConnSourceCidAdded,
         "[conn][%p] (SeqNum=%llu) New Source CID: %!CID!",
         Connection,
         SourceCid->CID.SequenceNumber,
-        SourceCid->CID.Length,
-        SourceCid->CID.Data);
+        CLOG_BYTEARRAY(SourceCid->CID.Length, SourceCid->CID.Data));
 
     SourceCid->CID.SequenceNumber = Connection->NextSourceCidSequenceNumber++;
     if (SourceCid->CID.SequenceNumber > 0) {
